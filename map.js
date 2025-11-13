@@ -15,3 +15,45 @@ const map = new mapboxgl.Map({
   minZoom: 5, // Minimum allowed zoom
   maxZoom: 18, // Maximum allowed zoom
 });
+
+// Everything that touches the map's data must go inside here!
+map.on('load', async () => {
+    
+  // Add the GeoJSON data source for Boston bike routes
+  map.addSource('boston_route', {
+    type: 'geojson',
+    data: 'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson',
+  });
+
+  // Add the GeoJSON data source for Cambridge bike routes
+  map.addSource('cambridge_route', {
+    type: 'geojson',
+    data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
+  });
+
+  // --- LAYERS ---
+  // Add the layer for BOSTON 
+  map.addLayer({
+    id: 'boston-bike-lanes',
+    type: 'line',
+    source: 'boston_route', 
+    paint: {
+      'line-color': 'magenta',
+      'line-width': 3,
+      'line-opacity': 0.4,
+    },
+  });
+
+  // Add the layer for CAMBRIDGE 
+  map.addLayer({
+    id: 'cambridge-bike-lanes', 
+    type: 'line',
+    source: 'cambridge_route', 
+    paint: {
+      'line-color': 'blue',
+      'line-width': 3,
+      'line-opacity': 0.4,
+    },
+  });
+
+});
