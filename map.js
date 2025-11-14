@@ -57,3 +57,39 @@ map.on('load', async () => {
   });
 
 });
+
+// Import D3 as an ES Module
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
+
+
+map.on('load', async () => {
+  
+  // Add the GeoJSON data source for Boston bike routes
+  map.addSource('boston_route', { /* ... */ });
+  // Add the GeoJSON data source for Cambridge bike routes
+  map.addSource('cambridge_route', { /* ... */ });
+  // Add the layer for BOSTON
+  map.addLayer({ /* ... */ });
+  // Add the layer for CAMBRIDGE
+  map.addLayer({ /* ... */ });
+
+  try {
+    const jsonurl = 'https://dsc-courses.github.io/dsc209r-2025-fa/labs/lab07/data/bluebikes-stations.json';
+
+    // Await JSON fetch
+    const jsonData = await d3.json(jsonurl);
+    console.log('Loaded JSON Data:', jsonData); // Log to verify structure
+
+    // ***** MOVED THESE LINES INSIDE *****
+    // Now it's safe to use jsonData because it exists in this scope
+    // and this code only runs *after* the await d3.json() is complete.
+    let stations = jsonData.data.stations;
+    console.log('Stations Array:', stations); 
+
+    // All code that uses 'stations' must also go in here...
+
+  } catch (error) {
+    console.error('Error loading JSON:', error); // Handle errors
+  }
+});
+
