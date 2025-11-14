@@ -16,23 +16,57 @@ const map = new mapboxgl.Map({
   maxZoom: 18, // Maximum allowed zoom
 });
 
-// Everything that touches the map's data must go inside here!
+// Import D3 as an ES Module
+import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
+
 map.on('load', async () => {
-    
-  // Add the GeoJSON data source for Boston bike routes
+  
+  // Boston route
   map.addSource('boston_route', {
     type: 'geojson',
     data: 'https://bostonopendata-boston.opendata.arcgis.com/datasets/boston::existing-bike-network-2022.geojson',
   });
 
-  // Add the GeoJSON data source for Cambridge bike routes
+  // Cambridge route
   map.addSource('cambridge_route', {
     type: 'geojson',
     data: 'https://raw.githubusercontent.com/cambridgegis/cambridgegis_data/main/Recreation/Bike_Facilities/RECREATION_BikeFacilities.geojson',
   });
 
-  // --- LAYERS ---
-  // Add the layer for BOSTON 
+  // Now, fetch and add the Bluebikes data
+  // Bluebikes Data 
+  try {
+    const jsonurl = 'https://dsc-courses.github.io/dsc209r-2025-fa/labs/lab07/data/bluebikes-stations.json';
+    const jsonData = await d3.json(jsonurl);
+    let stations = jsonData.data.stations;
+
+    // Convert Bluebikes array 
+    const features = stations.map(station => {
+      return {
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          // Coordinates must be [longitude, latitude]
+          coordinates: [station.lon, station.lat] 
+        },
+        properties: station 
+      };
+    });
+
+    // Wrap features IN A FeatureCollection
+    const geojsonData = {
+      type: 'FeatureCollection',
+      features: features
+    };
+
+    // Add new Geoson 
+    map.addSource('bluebikes_stations', {
+      type: 'geojson',
+      data: geojsonData 
+    });
+
+//Add Layers 
+  // Add the layer for Boston 
   map.addLayer({
     id: 'boston-bike-lanes',
     type: 'line',
@@ -44,7 +78,7 @@ map.on('load', async () => {
     },
   });
 
-  // Add the layer for CAMBRIDGE 
+  // Add the layer for Cambridge 
   map.addLayer({
     id: 'cambridge-bike-lanes', 
     type: 'line',
@@ -55,41 +89,20 @@ map.on('load', async () => {
       'line-opacity': 0.4,
     },
   });
-
-});
-
-// Import D3 as an ES Module
-import * as d3 from 'https://cdn.jsdelivr.net/npm/d3@7.9.0/+esm';
-
-
-map.on('load', async () => {
-  
-  // Add the GeoJSON data source for Boston bike routes
-  map.addSource('boston_route', { /* ... */ });
-  // Add the GeoJSON data source for Cambridge bike routes
-  map.addSource('cambridge_route', { /* ... */ });
-  // Add the layer for BOSTON
-  map.addLayer({ /* ... */ });
-  // Add the layer for CAMBRIDGE
-  map.addLayer({ /* ... */ });
-
-  try {
-    const jsonurl = 'https://dsc-courses.github.io/dsc209r-2025-fa/labs/lab07/data/bluebikes-stations.json';
-
-    // Await JSON fetch
-    const jsonData = await d3.json(jsonurl);
-    console.log('Loaded JSON Data:', jsonData); // Log to verify structure
-
-    // ***** MOVED THESE LINES INSIDE *****
-    // Now it's safe to use jsonData because it exists in this scope
-    // and this code only runs *after* the await d3.json() is complete.
-    let stations = jsonData.data.stations;
-    console.log('Stations Array:', stations); 
-
-    // All code that uses 'stations' must also go in here...
+    // Add layer for stations
+    map.addLayer({
+        id: 'stations-layer', 
+        type: 'circle',
+        source: 'bluebikes_stations', 
+        paint: {
+        'circle-radius': 5,
+        'circle-color': '#007cbf', 
+        'circle-stroke-width': 1,
+        'circle-stroke-color': '#ffffff' 
+        }
+    });
 
   } catch (error) {
-    console.error('Error loading JSON:', error); // Handle errors
+    console.error('Error loading JSON:', error);
   }
 });
-
