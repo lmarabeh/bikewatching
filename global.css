@@ -1,3 +1,11 @@
+/* --- 1. Global Definitions --- */
+
+/* Defines shared colors for the map and legend */
+:root {
+  --color-departures: steelblue;
+  --color-arrivals: darkorange;
+}
+
 body {
   font: 100%/1.5 system-ui, sans-serif;
   display: flex;
@@ -9,16 +17,18 @@ body {
   padding: 1em;
 }
 
-/* Slider rules */
+/* --- 2. Header & Slider Styles --- */
+
 header {
   display: flex;
   gap: 1em;
-  align-items: baseline;
+  align-items: baseline; /* Vertically aligns title and slider text */
+  width: 100%;           /* Make sure the header spans the full width */
 }
 
 #time-filter-label {
-  margin-left: auto;  /* Pushes the label to the right */
-  text-align: right; /* Aligns the "Filter by time:" text */
+  margin-left: auto;     /* Pushes the label to the right */
+  text-align: right;     /* Aligns the "Filter by time:" text */
 }
 
 /* This puts the time/em on their own line below the slider */
@@ -34,13 +44,103 @@ header {
   color: #666; /* A lighter grey color */
 }
 
-header {
-  display: flex;
-  align-items: baseline; /* This vertically aligns the title and slider text */
-  width: 100%;           /* Make sure the header spans the full width */
+/* Reset default appearance */
+#time-slider {
+  -webkit-appearance: none; /* For Chrome/Safari */
+  appearance: none;
+  width: 300px; /* Make the slider wider */
+  height: 10px; /* Make the track thicker */
+  background: #ddd; /* Light grey track color */
+  border-radius: 5px;
+  outline: none;
+  vertical-align: middle; /* Helps align with text */
 }
 
-#time-filter-label {
-  margin-left: auto;     /* This is the key: it pushes the label to the right */
-  text-align: right;     /* Aligns the "Filter by time:" text */
+/* --- Thumb/Handle Styles (Chrome, Safari, Edge) --- */
+#time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #007cbf;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-top: -5px;
+}
+
+/* --- Thumb/Handle Styles (Firefox) --- */
+#time-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #007cbf;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* --- Track Styles (Firefox) --- */
+#time-slider::-moz-range-track {
+  width: 100%;
+  height: 10px;
+  background: #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* --- 3. Map SVG Styles --- */
+
+svg circle {
+  /* Calculate color based on global colors */
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
+  );
+  
+  /* Set the fill color to our calculated variable */
+  fill: var(--color);
+}
+
+/* --- 4. Legend Styles --- */
+
+/* Style the main legend container */
+.legend {
+  /* Position it below the map */
+  width: 95%;
+  margin: 15px auto; /* Center it */
+  
+  /* Arrange items horizontally */
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+
+  /* Visual styling */
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+}
+
+/* Style the individual legend items */
+.legend div {
+  /* Share the same color logic as the circles */
+  --color: color-mix(
+    in oklch,
+    var(--color-departures) calc(100% * var(--departure-ratio)),
+    var(--color-arrivals)
+  );
+  
+  background-color: var(--color); /* Apply the color as a background */
+  
+  /* Make items flexible and centered */
+  flex: 1;
+  text-align: center;
+
+  /* Style the text */
+  color: white;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+  padding: 8px 12px;
+  border-radius: 4px;
 }
